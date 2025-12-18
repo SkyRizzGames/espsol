@@ -1,0 +1,80 @@
+# ESPSOL Kconfig
+# Configuration options for the ESPSOL Solana Component
+
+menu "ESPSOL Solana Component"
+
+    config ESPSOL_ENABLED
+        bool "Enable ESPSOL Solana Component"
+        default y
+        help
+            Enable the ESPSOL Solana blockchain component for ESP-IDF.
+
+    config ESPSOL_DEFAULT_RPC_ENDPOINT
+        string "Default RPC Endpoint"
+        default "https://api.devnet.solana.com"
+        depends on ESPSOL_ENABLED
+        help
+            Default Solana RPC endpoint URL. This can be overridden at runtime.
+            Common options:
+            - https://api.mainnet-beta.solana.com (Mainnet)
+            - https://api.devnet.solana.com (Devnet)
+            - https://api.testnet.solana.com (Testnet)
+            - http://localhost:8899 (Local validator)
+
+    config ESPSOL_RPC_TIMEOUT_MS
+        int "RPC Request Timeout (ms)"
+        default 30000
+        range 5000 120000
+        depends on ESPSOL_ENABLED
+        help
+            Timeout for RPC requests in milliseconds.
+            Recommended: 30000 (30 seconds) for reliable operation.
+
+    config ESPSOL_MAX_TX_SIZE
+        int "Maximum Transaction Buffer Size"
+        default 1232
+        range 512 4096
+        depends on ESPSOL_ENABLED
+        help
+            Maximum size in bytes for serialized transactions.
+            Solana transactions have a max size of 1232 bytes.
+
+    config ESPSOL_MAX_ACCOUNTS
+        int "Maximum Accounts per Transaction"
+        default 20
+        range 5 64
+        depends on ESPSOL_ENABLED
+        help
+            Maximum number of accounts that can be included in a single transaction.
+
+    config ESPSOL_MAX_INSTRUCTIONS
+        int "Maximum Instructions per Transaction"
+        default 10
+        range 1 20
+        depends on ESPSOL_ENABLED
+        help
+            Maximum number of instructions that can be included in a single transaction.
+
+    config ESPSOL_DEBUG_LOGGING
+        bool "Enable Debug Logging"
+        default n
+        depends on ESPSOL_ENABLED
+        help
+            Enable verbose debug logging for ESPSOL operations.
+            This will log RPC requests/responses and internal operations.
+
+    config ESPSOL_LOG_RPC_REQUESTS
+        bool "Log RPC Requests"
+        default n
+        depends on ESPSOL_DEBUG_LOGGING
+        help
+            Log full RPC request bodies (may contain sensitive data).
+
+    config ESPSOL_LOG_RPC_RESPONSES
+        bool "Log RPC Responses"
+        default n
+        depends on ESPSOL_DEBUG_LOGGING
+        help
+            Log full RPC response bodies.
+
+endmenu
