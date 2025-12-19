@@ -119,67 +119,164 @@ extern "C" {
 
 /* ============================================================================
  * Error Codes
+ *
+ * All ESPSOL-specific error codes start at ESP_ERR_ESPSOL_BASE (0x50000).
+ * Use espsol_err_to_name() to get human-readable error descriptions.
+ * Use ESPSOL_IS_ERR() macro to check if an error is ESPSOL-specific.
+ *
+ * Error Code Ranges:
+ *   0x50001-0x50005: Encoding errors (Base58, Base64)
+ *   0x50006-0x50007: Crypto errors (keypair, signature)
+ *   0x50008-0x50009: RPC errors (request, parse)
+ *   0x5000A-0x5000D: Transaction errors (build, sign, limits)
+ *   0x5000E-0x50013: System errors (NVS, network, timeout)
  * ========================================================================== */
 
-/** @brief ESPSOL error base */
+/** @brief ESPSOL error base (0x50000) */
 #define ESP_ERR_ESPSOL_BASE         0x50000
 
-/** @brief Invalid argument provided */
+/**
+ * @brief Invalid argument provided to ESPSOL function
+ * @details Returned when NULL pointers or invalid values are passed.
+ *          Check all required parameters are non-NULL.
+ */
 #define ESP_ERR_ESPSOL_INVALID_ARG          (ESP_ERR_ESPSOL_BASE + 0x01)
 
-/** @brief Buffer too small for operation */
+/**
+ * @brief Buffer too small for operation
+ * @details The output buffer provided is too small to hold the result.
+ *          Increase the buffer size and retry.
+ */
 #define ESP_ERR_ESPSOL_BUFFER_TOO_SMALL     (ESP_ERR_ESPSOL_BASE + 0x02)
 
-/** @brief Encoding/decoding failed */
+/**
+ * @brief Encoding/decoding operation failed
+ * @details A general encoding error occurred (not Base58/Base64 specific).
+ */
 #define ESP_ERR_ESPSOL_ENCODING_FAILED      (ESP_ERR_ESPSOL_BASE + 0x03)
 
-/** @brief Invalid Base58 input */
+/**
+ * @brief Invalid Base58 input string
+ * @details The input contains characters not in the Base58 alphabet
+ *          (e.g., 0, O, I, l) or has an invalid checksum.
+ */
 #define ESP_ERR_ESPSOL_INVALID_BASE58       (ESP_ERR_ESPSOL_BASE + 0x04)
 
-/** @brief Invalid Base64 input */
+/**
+ * @brief Invalid Base64 input string
+ * @details The input contains invalid Base64 characters or
+ *          has incorrect padding.
+ */
 #define ESP_ERR_ESPSOL_INVALID_BASE64       (ESP_ERR_ESPSOL_BASE + 0x05)
 
-/** @brief Keypair not initialized */
+/**
+ * @brief Keypair not initialized
+ * @details The keypair structure has not been properly initialized.
+ *          Use espsol_keypair_generate() or espsol_keypair_from_seed() first.
+ */
 #define ESP_ERR_ESPSOL_KEYPAIR_NOT_INIT     (ESP_ERR_ESPSOL_BASE + 0x06)
 
-/** @brief Signature verification failed */
+/**
+ * @brief Signature verification failed
+ * @details The Ed25519 signature is invalid for the given message
+ *          and public key combination.
+ */
 #define ESP_ERR_ESPSOL_SIGNATURE_INVALID    (ESP_ERR_ESPSOL_BASE + 0x07)
 
-/** @brief RPC request failed */
+/**
+ * @brief RPC request failed
+ * @details The JSON-RPC request to the Solana node failed.
+ *          Check network connectivity and RPC endpoint URL.
+ */
 #define ESP_ERR_ESPSOL_RPC_FAILED           (ESP_ERR_ESPSOL_BASE + 0x08)
 
-/** @brief RPC response parse error */
+/**
+ * @brief RPC response parse error
+ * @details Failed to parse the JSON response from the RPC server.
+ *          The response may be malformed or in an unexpected format.
+ */
 #define ESP_ERR_ESPSOL_RPC_PARSE_ERROR      (ESP_ERR_ESPSOL_BASE + 0x09)
 
-/** @brief Transaction build error */
+/**
+ * @brief Transaction build error
+ * @details Failed to build the transaction. Ensure fee payer and
+ *          blockhash are set before signing.
+ */
 #define ESP_ERR_ESPSOL_TX_BUILD_ERROR       (ESP_ERR_ESPSOL_BASE + 0x0A)
 
-/** @brief Transaction not signed */
+/**
+ * @brief Transaction not signed
+ * @details Attempted to serialize or send an unsigned transaction.
+ *          Call espsol_tx_sign() before serialization.
+ */
 #define ESP_ERR_ESPSOL_TX_NOT_SIGNED        (ESP_ERR_ESPSOL_BASE + 0x0B)
 
-/** @brief Maximum accounts exceeded */
+/**
+ * @brief Maximum accounts exceeded
+ * @details Transaction has too many accounts. Limit: ESPSOL_MAX_ACCOUNTS (20).
+ *          Reduce the number of instructions or accounts.
+ */
 #define ESP_ERR_ESPSOL_MAX_ACCOUNTS         (ESP_ERR_ESPSOL_BASE + 0x0C)
 
-/** @brief Maximum instructions exceeded */
+/**
+ * @brief Maximum instructions exceeded
+ * @details Transaction has too many instructions. Limit: ESPSOL_MAX_INSTRUCTIONS (10).
+ *          Split into multiple transactions.
+ */
 #define ESP_ERR_ESPSOL_MAX_INSTRUCTIONS     (ESP_ERR_ESPSOL_BASE + 0x0D)
 
-/** @brief NVS storage error */
+/**
+ * @brief NVS storage error
+ * @details Failed to read/write keypair to NVS flash.
+ *          Ensure NVS is initialized with nvs_flash_init().
+ */
 #define ESP_ERR_ESPSOL_NVS_ERROR            (ESP_ERR_ESPSOL_BASE + 0x0E)
 
-/** @brief Crypto operation failed */
+/**
+ * @brief Crypto operation failed
+ * @details Ed25519 cryptographic operation failed.
+ *          This may indicate a library initialization issue.
+ */
 #define ESP_ERR_ESPSOL_CRYPTO_ERROR         (ESP_ERR_ESPSOL_BASE + 0x0F)
 
-/** @brief Network/connection error */
+/**
+ * @brief Network/connection error
+ * @details Failed to establish network connection to RPC server.
+ *          Check WiFi connectivity and endpoint URL.
+ */
 #define ESP_ERR_ESPSOL_NETWORK_ERROR        (ESP_ERR_ESPSOL_BASE + 0x10)
 
-/** @brief Timeout error */
+/**
+ * @brief Operation timeout
+ * @details The operation exceeded the configured timeout.
+ *          Increase timeout or check network conditions.
+ */
 #define ESP_ERR_ESPSOL_TIMEOUT              (ESP_ERR_ESPSOL_BASE + 0x11)
 
-/** @brief Component not initialized */
+/**
+ * @brief Component not initialized
+ * @details ESPSOL component has not been initialized.
+ *          Call espsol_init() before using other functions.
+ */
 #define ESP_ERR_ESPSOL_NOT_INITIALIZED      (ESP_ERR_ESPSOL_BASE + 0x12)
 
-/** @brief Rate limited by RPC server (HTTP 429) */
+/**
+ * @brief Rate limited by RPC server (HTTP 429)
+ * @details Too many requests sent to the RPC server.
+ *          Implement backoff or use a paid RPC endpoint.
+ */
 #define ESP_ERR_ESPSOL_RATE_LIMITED         (ESP_ERR_ESPSOL_BASE + 0x13)
+
+/** @brief Highest ESPSOL error code (for range checking) */
+#define ESP_ERR_ESPSOL_MAX                  ESP_ERR_ESPSOL_RATE_LIMITED
+
+/**
+ * @brief Check if an error code is an ESPSOL-specific error
+ * @param err Error code to check
+ * @return true if error is ESPSOL-specific (0x50001-0x50013)
+ */
+#define ESPSOL_IS_ERR(err) \
+    ((err) >= (ESP_ERR_ESPSOL_BASE + 1) && (err) <= ESP_ERR_ESPSOL_MAX)
 
 /* ============================================================================
  * Enumerations

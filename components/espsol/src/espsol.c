@@ -51,6 +51,7 @@ static const espsol_err_entry_t s_error_names[] = {
     { ESP_ERR_ESPSOL_NETWORK_ERROR,     "Network error" },
     { ESP_ERR_ESPSOL_TIMEOUT,           "Operation timeout" },
     { ESP_ERR_ESPSOL_NOT_INITIALIZED,   "Component not initialized" },
+    { ESP_ERR_ESPSOL_RATE_LIMITED,      "Rate limited by RPC server" },
 };
 
 #define NUM_ERROR_ENTRIES (sizeof(s_error_names) / sizeof(s_error_names[0]))
