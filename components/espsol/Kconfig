@@ -1,5 +1,6 @@
 # ESPSOL Kconfig
 # Configuration options for the ESPSOL Solana Component
+# Production-grade configuration aligned with grant submission requirements
 
 menu "ESPSOL Solana Component"
 
@@ -8,73 +9,557 @@ menu "ESPSOL Solana Component"
         default y
         help
             Enable the ESPSOL Solana blockchain component for ESP-IDF.
+            
+            ESPSOL is a production-grade SDK for Solana integration on ESP32.
+            Features: Ed25519 signing, RPC client, transactions, SPL tokens.
+            
+            For documentation: https://github.com/ariestiyansyah/espsol
 
-    config ESPSOL_DEFAULT_RPC_ENDPOINT
-        string "Default RPC Endpoint"
-        default "https://api.devnet.solana.com"
+    menu "Network Configuration"
         depends on ESPSOL_ENABLED
-        help
-            Default Solana RPC endpoint URL. This can be overridden at runtime.
-            Common options:
-            - https://api.mainnet-beta.solana.com (Mainnet)
-            - https://api.devnet.solana.com (Devnet)
-            - https://api.testnet.solana.com (Testnet)
-            - http://localhost:8899 (Local validator)
 
-    config ESPSOL_RPC_TIMEOUT_MS
-        int "RPC Request Timeout (ms)"
-        default 30000
-        range 5000 120000
+        config ESPSOL_DEFAULT_RPC_ENDPOINT
+            string "Default RPC Endpoint"
+            default "https://api.devnet.solana.com"
+            help
+                Default Solana RPC endpoint URL. Can be overridden at runtime
+                using espsol_rpc_init() or espsol_rpc_init_with_config().
+                
+                Common options:
+                - https://api.mainnet-beta.solana.com (Mainnet)
+                - https://api.devnet.solana.com (Devnet - recommended for testing)
+                - https://api.testnet.solana.com (Testnet)
+                - http://localhost:8899 (Local validator)
+                
+                For production, use a paid RPC provider:
+                - https://solana-mainnet.g.alchemy.com/v2/YOUR-API-KEY
+                - https://mainnet.helius-rpc.com/?api-key=YOUR-API-KEY
+                - https://rpc.ankr.com/solana/YOUR-API-KEY
+
+        choice ESPSOL_DEFAULT_COMMITMENT
+            prompt "Default Commitment Level"
+            default ESPSOL_COMMITMENT_CONFIRMED
+            help
+                Default commitment level for RPC requests. Higher commitment
+                provides more finality guarantees but slower confirmation.
+                
+                - Processed: Query node's ledger cache (~400ms)
+                - Confirmed: Confirmed by cluster supermajority (~1-2s)
+                - Finalized: 31+ confirmed blocks above it (~13s)
+
+            config ESPSOL_COMMITMENT_PROCESSED
+                bool "Processed (fastest, least secure)"
+            config ESPSOL_COMMITMENT_CONFIRMED
+                bool "Confirmed (recommended balance)"
+            config ESPSOL_COMMITMENT_FINALIZED
+                bool "Finalized (slowest, most secure)"
+        endchoice
+
+        config ESPSOL_RPC_TIMEOUT_MS
+            int "RPC Request Timeout (ms)"
+            default 30000
+            range 5000 120000
+            help
+                Timeout for RPC HTTP requests in milliseconds.
+                
+                Recommended values:
+                - 30000 (30s) for devnet/testnet (can be slow)
+                - 15000 (15s) for mainnet with paid RPC
+                - 60000 (60s) for local validator with debug mode
+                
+                If you see ESP_ERR_ESPSOL_TIMEOUT errors, increase this value.
+
+        config ESPSOL_RPC_RETRY_COUNT
+            int "RPC Request Retry Count"
+            default 3
+            range 0 10
+            help
+                Number of retries for failed RPC requests before giving up.
+                
+                Recommended: 3 for production (balances reliability vs latency)
+                Set to 0 to disable retries (not recommended for production).
+
+        config ESPSOL_RPC_RETRY_DELAY_MS
+            int "RPC Retry Delay (ms)"
+            default 1000
+            range 100 10000
+            depends on ESPSOL_RPC_RETRY_COUNT > 0
+            help
+                Delay between retry attempts in milliseconds.
+                Uses exponential backoff: delay * 2^attempt.
+                
+                Example with delay=1000: 1s, 2s, 4s, 8s...
+                Recommended: 1000ms (1 second) base delay.
+
+        config ESPSOL_RPC_BUFFER_SIZE
+            int "RPC Response Buffer Size (bytes)"
+            default 4096
+            range 2048 16384
+            help
+                Size of buffer for RPC HTTP responses in bytes.
+                
+                Typical response sizes:
+                - getBalance: ~200 bytes
+                - getLatestBlockhash: ~300 bytes
+                - getAccountInfo: 1KB - 10KB depending on account data
+                - getTransaction: 2KB - 8KB for complex transactions
+                
+                Recommended:
+                - 4096 (4KB) for basic operations (balance, transfers)
+                - 8192 (8KB) for token operations and account queries
+                - 16384 (16KB) for complex DeFi interactions
+                
+                Larger buffers use more RAM but support bigger responses.
+
+        config ESPSOL_ENABLE_WEBSOCKET
+            bool "Enable WebSocket Support (Future)"
+            default n
+            help
+                Enable WebSocket subscriptions for real-time updates.
+                
+                Features (D2 milestone - not yet implemented):
+                - accountSubscribe: Watch account changes
+                - programSubscribe: Monitor program accounts
+                - signatureSubscribe: Track transaction confirmations
+                - slotSubscribe: Get slot notifications
+                
+                Requires ~8KB additional RAM for WebSocket client.
+
+        config ESPSOL_RATE_LIMIT_RPS
+            int "Rate Limit (requests per second)"
+            default 10
+            range 1 100
+            help
+                Maximum RPC requests per second. Prevents rate limiting by RPC nodes.
+                
+                Public RPC limits (approximate):
+                - Solana public endpoints: 10 RPS
+                - Helius free tier: 10 RPS
+                - Helius paid: 100+ RPS
+                - Alchemy free: 25 RPS
+                - Local validator: unlimited
+                
+                Set this below your RPC provider's limit to avoid HTTP 429 errors.
+
+    endmenu # Network Configuration
+
+    menu "Transaction Configuration"
         depends on ESPSOL_ENABLED
-        help
-            Timeout for RPC requests in milliseconds.
-            Recommended: 30000 (30 seconds) for reliable operation.
 
-    config ESPSOL_MAX_TX_SIZE
-        int "Maximum Transaction Buffer Size"
-        default 1232
-        range 512 4096
+        config ESPSOL_MAX_TX_SIZE
+            int "Maximum Transaction Size (bytes)"
+            default 1232
+            range 512 1232
+            help
+                Maximum size for serialized Solana transactions in bytes.
+                
+                Solana protocol maximum: 1232 bytes (non-versioned transactions)
+                Versioned transactions with address lookup tables: 1232 bytes
+                
+                Do not increase beyond 1232 - transactions will be rejected by network.
+                Decrease to save memory if only doing simple transfers (e.g., 512 bytes).
+
+        config ESPSOL_MAX_ACCOUNTS
+            int "Maximum Accounts per Transaction"
+            default 20
+            range 5 64
+            help
+                Maximum number of account keys in a single transaction.
+                
+                Typical account counts:
+                - SOL transfer: 2 accounts
+                - SPL token transfer: 3-5 accounts
+                - DEX swap: 10-15 accounts
+                - Complex DeFi: 20-30 accounts
+                
+                Solana limit: 64 accounts per transaction (32 writable + 32 readonly)
+                Recommended: 20 for most use cases (saves ~2KB RAM)
+
+        config ESPSOL_MAX_INSTRUCTIONS
+            int "Maximum Instructions per Transaction"
+            default 10
+            range 1 64
+            help
+                Maximum number of instructions in a single transaction.
+                
+                Typical instruction counts:
+                - SOL transfer: 1 instruction
+                - Token transfer: 1 instruction
+                - Create ATA + transfer: 2 instructions
+                - Multi-token swap: 5-8 instructions
+                - Batch operations: 10+ instructions
+                
+                Solana limit: No hard limit, but compute budget is 200k units per TX
+                Recommended: 10 for general use (saves memory)
+
+        config ESPSOL_DEFAULT_PRIORITY_FEE
+            int "Default Priority Fee (micro-lamports per compute unit)"
+            default 0
+            range 0 1000000
+            help
+                Default priority fee for transactions in micro-lamports per compute unit.
+                
+                Priority fees help get transactions processed faster during congestion.
+                
+                Typical values:
+                - 0: No priority fee (slower during congestion)
+                - 1000: Low priority (~0.001 SOL for 1400 CU instruction)
+                - 10000: Medium priority (~0.01 SOL for 1400 CU instruction)
+                - 100000: High priority (~0.1 SOL for 1400 CU instruction)
+                
+                Can be overridden per transaction. Set 0 for devnet/testing.
+                Formula: fee = (priority_fee_microlamports * compute_units) / 1,000,000
+
+        config ESPSOL_ENABLE_DURABLE_NONCES
+            bool "Enable Durable Nonce Support (Future)"
+            default n
+            help
+                Enable durable nonce accounts for offline transaction signing.
+                
+                Features (D3 milestone - not yet implemented):
+                - Create nonce accounts
+                - Advance nonce
+                - Use nonce instead of recent blockhash
+                - Offline signing workflow
+                
+                Use cases: Hardware wallets, air-gapped signing
+
+        config ESPSOL_ENABLE_VERSIONED_TX
+            bool "Enable Versioned Transactions (Future)"
+            default n
+            help
+                Enable support for versioned transactions (v0).
+                
+                Features (D3 milestone - not yet implemented):
+                - Address lookup tables (ALTs)
+                - More accounts per transaction (up to 256)
+                - Smaller transaction size
+                
+                Required for some DeFi protocols.
+
+    endmenu # Transaction Configuration
+
+    menu "Cryptography Configuration"
         depends on ESPSOL_ENABLED
-        help
-            Maximum size in bytes for serialized transactions.
-            Solana transactions have a max size of 1232 bytes.
 
-    config ESPSOL_MAX_ACCOUNTS
-        int "Maximum Accounts per Transaction"
-        default 20
-        range 5 64
+        config ESPSOL_USE_HARDWARE_CRYPTO
+            bool "Use ESP32 Hardware Crypto Acceleration"
+            default y
+            help
+                Use ESP32's hardware cryptographic accelerators when available.
+                
+                Accelerated operations:
+                - SHA-256 (hash operations)
+                - AES (if using encrypted NVS)
+                - Random number generation (RNG)
+                
+                Ed25519 signing uses libsodium (software) as ESP32 lacks Ed25519 hardware.
+                
+                Performance impact:
+                - Hardware: SHA-256 ~10x faster
+                - Disable for consistent timing (side-channel attack mitigation)
+
+        config ESPSOL_SECURE_BOOT_COMPATIBLE
+            bool "Secure Boot Compatible Mode"
+            default n
+            help
+                Enable compatibility with ESP32 Secure Boot feature.
+                
+                When enabled:
+                - Ensures no dynamic code loading
+                - All crypto operations use approved libraries
+                - Compatible with flash encryption
+                
+                Required if using ESP32 Secure Boot for production devices.
+
+        config ESPSOL_NVS_NAMESPACE
+            string "NVS Namespace for Key Storage"
+            default "espsol"
+            help
+                NVS (Non-Volatile Storage) namespace for storing keypairs.
+                
+                Default: "espsol"
+                Change if you have multiple components using ESPSOL or want isolation.
+                
+                Functions using this:
+                - espsol_keypair_save()
+                - espsol_keypair_load()
+                - espsol_keypair_delete()
+
+        config ESPSOL_ENABLE_NVS_ENCRYPTION
+            bool "Enable NVS Encryption for Keys"
+            default y
+            help
+                Encrypt keypairs stored in NVS flash using ESP32's NVS encryption.
+                
+                Security benefits:
+                - Keys encrypted at rest
+                - Requires flash encryption to be enabled
+                - Protects against physical flash reading attacks
+                
+                Recommended: Always enable for production (especially mainnet keys)
+                Note: Requires NVS encryption to be initialized in your app.
+
+        config ESPSOL_WIPE_KEYS_ON_FAILURE
+            bool "Wipe Keys on Repeated Signature Failures"
+            default n
+            help
+                Automatically delete stored keys if signature verification fails repeatedly.
+                
+                This is a security feature to prevent key extraction attacks through
+                fault injection. After 3 consecutive signature verification failures,
+                all keys in the ESPSOL NVS namespace are erased.
+                
+                Warning: Can cause data loss if hardware issues cause false failures.
+                Recommended: Enable only for high-security applications.
+
+    endmenu # Cryptography Configuration
+
+    menu "SPL Token Configuration"
         depends on ESPSOL_ENABLED
-        help
-            Maximum number of accounts that can be included in a single transaction.
 
-    config ESPSOL_MAX_INSTRUCTIONS
-        int "Maximum Instructions per Transaction"
-        default 10
-        range 1 20
+        config ESPSOL_ENABLE_SPL_TOKENS
+            bool "Enable SPL Token Support"
+            default y
+            help
+                Enable SPL Token Program integration for token operations.
+                
+                Features:
+                - Token transfers
+                - Associated Token Account (ATA) creation
+                - Token balance queries
+                - Token-2022 support (D4 milestone)
+                
+                Adds ~15KB to binary size.
+
+        config ESPSOL_ENABLE_TOKEN_2022
+            bool "Enable Token-2022 Extensions (Future)"
+            default n
+            depends on ESPSOL_ENABLE_SPL_TOKENS
+            help
+                Enable Token-2022 (Token Extensions) support.
+                
+                Extensions (D4 milestone - not fully implemented):
+                - Transfer fees
+                - Confidential transfers
+                - Interest-bearing tokens
+                - Non-transferable tokens
+                - Permanent delegate
+                - Metadata pointer
+                
+                Adds ~5KB to binary size.
+
+        config ESPSOL_MAX_TOKEN_METADATA_SIZE
+            int "Maximum Token Metadata Size (bytes)"
+            default 512
+            range 256 4096
+            depends on ESPSOL_ENABLE_SPL_TOKENS
+            help
+                Maximum size for token metadata (name, symbol, URI) in bytes.
+                
+                Typical sizes:
+                - Basic metadata (name+symbol): 100 bytes
+                - With URI: 200-500 bytes
+                - Full Metaplex metadata: 1KB-4KB
+                
+                Larger values use more RAM for metadata queries.
+
+    endmenu # SPL Token Configuration
+
+    menu "Memory & Performance"
         depends on ESPSOL_ENABLED
-        help
-            Maximum number of instructions that can be included in a single transaction.
 
-    config ESPSOL_DEBUG_LOGGING
-        bool "Enable Debug Logging"
-        default n
+        config ESPSOL_TASK_STACK_SIZE
+            int "ESPSOL Task Stack Size (bytes)"
+            default 4096
+            range 2048 8192
+            help
+                Stack size for FreeRTOS tasks using ESPSOL functions.
+                
+                Typical stack usage:
+                - Simple RPC calls: 2KB
+                - Transaction signing: 3KB
+                - Token operations: 4KB
+                - Complex DeFi: 6-8KB
+                
+                Recommended: 4096 (4KB) for general use
+                Increase if you see "Stack overflow" errors.
+
+        config ESPSOL_ENABLE_TASK_SAFE
+            bool "Enable Task-Safe Operation"
+            default y
+            help
+                Add mutex protection for concurrent RPC calls from multiple tasks.
+                
+                Enable for multi-threaded applications where multiple FreeRTOS tasks
+                may call ESPSOL functions simultaneously.
+                
+                Overhead: ~200 bytes RAM per RPC handle, slight performance impact
+                
+                Recommended: Always enable for production (D1 milestone requirement)
+
+        config ESPSOL_MAX_CONCURRENT_RPC
+            int "Maximum Concurrent RPC Handles"
+            default 2
+            range 1 8
+            depends on ESPSOL_ENABLE_TASK_SAFE
+            help
+                Maximum number of concurrent RPC client handles.
+                
+                Each handle uses ~8KB RAM (buffer + connection state).
+                
+                Typical configurations:
+                - 1: Single-task application
+                - 2: Main app + background monitoring task
+                - 4: Multiple parallel operations
+                
+                Recommended: 2 for most applications
+
+        config ESPSOL_HEAP_TRACE
+            bool "Enable Heap Memory Tracing"
+            default n
+            help
+                Enable ESP-IDF heap tracing for ESPSOL operations.
+                
+                Useful for debugging memory leaks and optimizing memory usage.
+                Logs all malloc/free calls with ESPSOL prefix.
+                
+                Warning: Significant performance impact. Use only during development.
+
+    endmenu # Memory & Performance
+
+    menu "Logging & Debugging"
         depends on ESPSOL_ENABLED
-        help
-            Enable verbose debug logging for ESPSOL operations.
-            This will log RPC requests/responses and internal operations.
 
-    config ESPSOL_LOG_RPC_REQUESTS
-        bool "Log RPC Requests"
-        default n
-        depends on ESPSOL_DEBUG_LOGGING
-        help
-            Log full RPC request bodies (may contain sensitive data).
+        config ESPSOL_LOG_LEVEL
+            int "ESPSOL Log Level"
+            default 3
+            range 0 5
+            help
+                Default log level for ESPSOL component.
+                
+                Levels:
+                - 0: None (no logging)
+                - 1: Error only
+                - 2: Warning
+                - 3: Info (recommended for production)
+                - 4: Debug (verbose, for development)
+                - 5: Verbose (very detailed, for troubleshooting)
+                
+                Can be overridden at runtime with esp_log_level_set("espsol*", level)
 
-    config ESPSOL_LOG_RPC_RESPONSES
-        bool "Log RPC Responses"
-        default n
-        depends on ESPSOL_DEBUG_LOGGING
-        help
-            Log full RPC response bodies.
+        config ESPSOL_LOG_RPC_REQUESTS
+            bool "Log RPC Request Bodies"
+            default n
+            help
+                Log full JSON-RPC request bodies to console.
+                
+                Useful for debugging RPC issues and understanding API usage.
+                
+                Warning: May log sensitive data (signatures, private information)
+                Recommended: Disable for production, enable only during development
 
-endmenu
+        config ESPSOL_LOG_RPC_RESPONSES
+            bool "Log RPC Response Bodies"
+            default n
+            help
+                Log full JSON-RPC response bodies to console.
+                
+                Useful for debugging RPC issues and inspecting blockchain data.
+                
+                Warning: Large responses (>4KB) will be truncated in logs
+                Performance: Minimal impact on normal operations
+
+        config ESPSOL_LOG_TRANSACTION_HEX
+            bool "Log Transaction Hex Data"
+            default n
+            help
+                Log serialized transaction data as hex strings before sending.
+                
+                Useful for:
+                - Debugging transaction serialization issues
+                - Verifying transaction contents
+                - Comparing with web3.js transaction format
+                
+                Recommended: Disable for production (sensitive data exposure)
+
+        config ESPSOL_ENABLE_ASSERT
+            bool "Enable Internal Assertions"
+            default y
+            help
+                Enable internal assert() checks for ESPSOL invariants.
+                
+                Catches programming errors like:
+                - Invalid state transitions
+                - Buffer overflows
+                - Null pointer dereferences
+                
+                In production builds, assertions are compiled out if disabled.
+                Recommended: Always enable (minimal overhead, catches bugs early)
+
+        config ESPSOL_ENABLE_STATS
+            bool "Enable Performance Statistics"
+            default n
+            help
+                Collect and log performance statistics for ESPSOL operations.
+                
+                Metrics tracked:
+                - RPC request latency (min/max/avg)
+                - Transaction signing time
+                - Serialization overhead
+                - Network retry counts
+                
+                Access via espsol_get_stats() API.
+                Overhead: ~1KB RAM for stats tracking
+
+    endmenu # Logging & Debugging
+
+    menu "Production Features"
+        depends on ESPSOL_ENABLED
+
+        config ESPSOL_ENABLE_FAILOVER
+            bool "Enable RPC Failover (Future)"
+            default n
+            help
+                Enable automatic failover to backup RPC endpoints.
+                
+                Features (D2 milestone - not yet implemented):
+                - Primary/backup endpoint configuration
+                - Automatic health checks
+                - Transparent failover on errors
+                - Weighted load balancing
+                
+                Recommended for production applications requiring high availability.
+
+        config ESPSOL_ENABLE_METRICS
+            bool "Enable Prometheus Metrics Export (Future)"
+            default n
+            help
+                Export ESPSOL metrics in Prometheus format for monitoring.
+                
+                Metrics exported:
+                - espsol_rpc_requests_total
+                - espsol_rpc_errors_total
+                - espsol_tx_signed_total
+                - espsol_rpc_latency_seconds
+                
+                Requires HTTP server to expose /metrics endpoint.
+
+        config ESPSOL_OTA_SAFE
+            bool "OTA Update Safe Mode"
+            default y
+            help
+                Ensure ESPSOL operations are safe during OTA (Over-The-Air) updates.
+                
+                Safety measures:
+                - Block new transactions during OTA
+                - Complete in-flight RPC requests before OTA
+                - Flush NVS writes before OTA
+                - Validate flash integrity after OTA
+                
+                Prevents transaction corruption during firmware updates.
+                Recommended: Always enable for production devices with OTA support
+
+    endmenu # Production Features
+
+endmenu # ESPSOL Solana Component
