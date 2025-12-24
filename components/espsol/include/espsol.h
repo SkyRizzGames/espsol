@@ -21,6 +21,9 @@
 /* Cryptographic operations (Ed25519 keypairs, signing) */
 #include "espsol_crypto.h"
 
+/* BIP39 Mnemonic (seed phrase) support */
+#include "espsol_mnemonic.h"
+
 /* RPC client for Solana network communication */
 #include "espsol_rpc.h"
 

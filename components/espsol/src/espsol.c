@@ -52,6 +52,7 @@ static const espsol_err_entry_t s_error_names[] = {
     { ESP_ERR_ESPSOL_TIMEOUT,           "Operation timeout" },
     { ESP_ERR_ESPSOL_NOT_INITIALIZED,   "Component not initialized" },
     { ESP_ERR_ESPSOL_RATE_LIMITED,      "Rate limited by RPC server" },
+    { ESP_ERR_ESPSOL_INVALID_MNEMONIC,  "Invalid mnemonic phrase" },
 };
 
 #define NUM_ERROR_ENTRIES (sizeof(s_error_names) / sizeof(s_error_names[0]))
