@@ -89,27 +89,13 @@ static esp_err_t pbkdf2_sha512(const uint8_t *password, size_t password_len,
                                 uint32_t iterations, uint8_t *output, size_t output_len)
 {
 #if defined(ESP_PLATFORM) && ESP_PLATFORM || defined(USE_MBEDTLS)
-    mbedtls_md_context_t ctx;
-    const mbedtls_md_info_t *md_info;
     int ret;
-
-    mbedtls_md_init(&ctx);
-    md_info = mbedtls_md_info_from_type(MBEDTLS_MD_SHA512);
-    if (md_info == NULL) {
-        return ESP_ERR_ESPSOL_CRYPTO_ERROR;
-    }
-
-    ret = mbedtls_md_setup(&ctx, md_info, 1);  /* 1 = use HMAC */
-    if (ret != 0) {
-        mbedtls_md_free(&ctx);
-        return ESP_ERR_ESPSOL_CRYPTO_ERROR;
-    }
-
-    ret = mbedtls_pkcs5_pbkdf2_hmac(&ctx, password, password_len,
-                                     salt, salt_len, iterations,
-                                     output_len, output);
-    mbedtls_md_free(&ctx);
-
+    
+    /* Use the newer mbedtls_pkcs5_pbkdf2_hmac_ext API (mbedTLS 3.x) */
+    ret = mbedtls_pkcs5_pbkdf2_hmac_ext(MBEDTLS_MD_SHA512,
+                                         password, password_len,
+                                         salt, salt_len, iterations,
+                                         output_len, output);
     if (ret != 0) {
         return ESP_ERR_ESPSOL_CRYPTO_ERROR;
     }
@@ -267,10 +253,7 @@ esp_err_t espsol_mnemonic_from_entropy(const uint8_t *entropy, size_t entropy_le
     memset(data, 0, sizeof(data));
     memcpy(data, entropy, entropy_len);
     
-    /* Append checksum bits */
-    /* The checksum is the first checksum_bits of the SHA-256 hash */
-    int total_bits = (int)(entropy_len * 8) + checksum_bits;
-    
+    /* Append checksum bits (first checksum_bits of SHA-256 hash) */
     /* Copy checksum byte(s) */
     if (checksum_bits == 4) {
         /* 12-word: append top 4 bits of hash[0] */
@@ -458,7 +441,7 @@ esp_err_t espsol_mnemonic_validate(const char *mnemonic)
     /* Reconstruct entropy and verify checksum */
     int entropy_bits = (word_count == 12) ? 128 : 256;
     int checksum_bits = entropy_bits / 32;
-    int total_bits = entropy_bits + checksum_bits;
+    (void)checksum_bits;  /* Used implicitly in mask calculation below */
     
     /* Convert word indices back to bits */
     uint8_t data[34];
@@ -628,33 +611,56 @@ void espsol_mnemonic_print(const char *mnemonic, const char *label)
         return;
     }
     
+#if defined(ESP_PLATFORM) && ESP_PLATFORM
     if (label != NULL) {
-        LOG_I("=== %s ===", label);
+        ESP_LOGI(TAG, "=== %s ===", label);
     } else {
-        LOG_I("=== YOUR SEED PHRASE ===");
+        ESP_LOGI(TAG, "=== YOUR SEED PHRASE ===");
     }
     
-    /* Print words with numbers */
     char word_buf[16];
     const char *p = mnemonic;
-    int word_num = 1;
+    int num = 1;
     
     while (*p) {
-        /* Skip spaces */
         while (*p == ' ') p++;
         if (*p == '\0') break;
         
-        /* Extract word */
         size_t len = 0;
         while (*p && *p != ' ' && len < sizeof(word_buf) - 1) {
             word_buf[len++] = *p++;
         }
         word_buf[len] = '\0';
         
-        LOG_I("%2d. %s", word_num++, word_buf);
+        ESP_LOGI(TAG, "%2d. %s", num++, word_buf);
     }
     
-    LOG_I("========================");
-    LOG_I("IMPORTANT: Write these words down and store them safely!");
-    LOG_I("Never share your seed phrase with anyone.");
+    ESP_LOGI(TAG, "========================");
+#else
+    /* Host: use printf */
+    if (label != NULL) {
+        printf("=== %s ===\n", label);
+    } else {
+        printf("=== YOUR SEED PHRASE ===\n");
+    }
+    
+    char word_buf[16];
+    const char *p = mnemonic;
+    int num = 1;
+    
+    while (*p) {
+        while (*p == ' ') p++;
+        if (*p == '\0') break;
+        
+        size_t len = 0;
+        while (*p && *p != ' ' && len < sizeof(word_buf) - 1) {
+            word_buf[len++] = *p++;
+        }
+        word_buf[len] = '\0';
+        
+        printf("%2d. %s\n", num++, word_buf);
+    }
+    
+    printf("========================\n");
+#endif
 }

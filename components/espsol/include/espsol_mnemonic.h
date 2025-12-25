@@ -2,14 +2,14 @@
  * @file espsol_mnemonic.h
  * @brief ESPSOL BIP39 Mnemonic (Seed Phrase) Support
  *
- * This file provides BIP39 mnemonic seed phrase functionality:
+ * BIP39 mnemonic seed phrase functionality:
  * - Generate 12/24 word mnemonic phrases
  * - Convert mnemonic to seed bytes
  * - Derive Solana keypairs from mnemonic
  * - Validate mnemonic phrases
  *
- * Solana uses BIP44 derivation path: m/44'/501'/0'/0'
- * with SLIP-0010 Ed25519 derivation.
+ * Uses first 32 bytes of BIP39 seed as Ed25519 seed.
+ * Compatible with Phantom, Solflare, and other Solana wallets.
  *
  * @note Mnemonic phrases are sensitive - treat them like private keys!
  *

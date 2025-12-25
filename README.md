@@ -4,19 +4,20 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](LICENSE)
 [![Solana](https://img.shields.io/badge/Solana-Devnet%20%7C%20Mainnet-purple.svg)](https://solana.com)
 
-An SP-IDF component for Solana blockchain integration on ESP32 devices. Written in C with native ESP-IDF APIs.
+A production-grade ESP-IDF component for Solana blockchain integration on ESP32 devices. Written in pure C with native ESP-IDF APIs.
 
-## Features
+## ✨ Features
 
 - **Pure C Implementation** - No Arduino, no C++ overhead
 - **Native ESP-IDF** - Uses esp_http_client, cJSON, mbedTLS
 - **Ed25519 Cryptography** - Via libsodium (hardware-accelerated where available)
+- **BIP39 Seed Phrases** - 12/24-word mnemonic backup and recovery
 - **Full RPC Support** - All common Solana JSON-RPC 2.0 methods
 - **Transaction Building** - System Program transfers, SPL Token operations
 - **Secure Key Storage** - NVS with optional encryption
 - **Minimal Footprint** - Component is only ~8KB compiled
 
-## Installation
+## 📦 Installation
 
 ### Option 1: As a Local Component
 
@@ -42,7 +43,7 @@ dependencies:
   idf: ">=5.0"
 ```
 
-## Quick Start
+## 🚀 Quick Start
 
 ### Basic Example
 
@@ -109,6 +110,25 @@ char signature[ESPSOL_SIGNATURE_MAX_LEN];
 espsol_rpc_send_transaction(rpc, tx_base64, signature, sizeof(signature));
 ```
 
+### Create Wallet with Seed Phrase (BIP39)
+
+```c
+// Generate new wallet with 12-word seed phrase backup
+char mnemonic[ESPSOL_MNEMONIC_12_MAX_LEN];
+espsol_keypair_t wallet;
+espsol_keypair_generate_with_mnemonic(12, mnemonic, sizeof(mnemonic), &wallet);
+
+// Display seed phrase for user to backup
+printf("⚠️ BACKUP YOUR SEED PHRASE:\n%s\n", mnemonic);
+
+// Later: recover wallet from seed phrase
+espsol_keypair_from_mnemonic(mnemonic, NULL, &wallet);
+
+// Clear sensitive data
+espsol_mnemonic_clear(mnemonic, sizeof(mnemonic));
+espsol_keypair_clear(&wallet);
+```
+
 ## 📚 API Reference
 
 ### Core Module (`espsol.h`)
@@ -118,6 +138,19 @@ espsol_rpc_send_transaction(rpc, tx_base64, signature, sizeof(signature));
 | `espsol_init()` | Initialize SDK with configuration |
 | `espsol_deinit()` | Cleanup and release resources |
 | `espsol_get_version()` | Get SDK version string |
+
+### Mnemonic Module (`espsol_mnemonic.h`)
+
+| Function | Description |
+|----------|-------------|
+| `espsol_mnemonic_generate_12()` | Generate 12-word seed phrase |
+| `espsol_mnemonic_generate_24()` | Generate 24-word seed phrase |
+| `espsol_mnemonic_validate()` | Validate mnemonic phrase |
+| `espsol_mnemonic_to_seed()` | Convert mnemonic to 64-byte seed |
+| `espsol_keypair_from_mnemonic()` | Derive keypair from mnemonic |
+| `espsol_keypair_generate_with_mnemonic()` | Generate keypair + mnemonic |
+| `espsol_mnemonic_print()` | Print numbered words for backup |
+| `espsol_mnemonic_clear()` | Securely clear mnemonic from memory |
 
 ### RPC Client (`espsol_rpc.h`)
 
@@ -225,6 +258,7 @@ CONFIG_LIBC_NEWLIB_NANO_FORMAT=y
 |---------|-------------|
 | [basic_rpc](examples/basic_rpc/) | Query Solana network information |
 | [wallet_demo](examples/wallet_demo/) | Keypair management and NVS storage |
+| [mnemonic_wallet](examples/mnemonic_wallet/) | Seed phrase backup and wallet recovery |
 | [transfer_sol](examples/transfer_sol/) | Complete SOL transfer workflow |
 | [token_operations](examples/token_operations/) | SPL Token operations |
 
@@ -242,9 +276,10 @@ CONFIG_LIBC_NEWLIB_NANO_FORMAT=y
 
 1. **NVS Encryption**: Enable `CONFIG_NVS_ENCRYPTION` for secure key storage
 2. **Clear Keys**: Always call `espsol_keypair_clear()` when done
-3. **TLS Verification**: Uses ESP certificate bundle for HTTPS
-4. **Hardware RNG**: Uses ESP32's true random number generator
-5. **No Logging Keys**: Private keys are never logged
+3. **Clear Mnemonics**: Always call `espsol_mnemonic_clear()` after backup
+4. **TLS Verification**: Uses ESP certificate bundle for HTTPS
+5. **Hardware RNG**: Uses ESP32's true random number generator
+6. **No Logging Keys**: Private keys and mnemonics are never logged
 
 ## 🧪 Testing
 
@@ -267,3 +302,14 @@ idf.py build flash monitor
 
 Apache License 2.0 - see [LICENSE](LICENSE) for details.
 
+## 🙏 Acknowledgments
+
+- [Solduino](https://github.com/torrey-xyz/solduino) - Arduino Solana SDK inspiration
+- [libsodium](https://libsodium.org) - Ed25519 cryptography
+- [Solana](https://solana.com) - The blockchain platform
+
+## 📞 Support
+
+- **Issues**: GitHub Issues
+- **Discussions**: GitHub Discussions
+- **Solana Docs**: https://docs.solana.com

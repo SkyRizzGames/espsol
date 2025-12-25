@@ -23,12 +23,14 @@ A production-grade ESP-IDF component for Solana blockchain integration on ESP32 
    - [Core SDK](#core-sdk-espsol_inith)
    - [Utilities](#utilities-espsol_utilsh)
    - [Cryptography](#cryptography-espsol_cryptoh)
+   - [Mnemonic/Seed Phrase](#mnemonicseed-phrase-espsol_mneomich)
    - [RPC Client](#rpc-client-espsol_rpch)
    - [Transactions](#transactions-espsol_txh)
    - [SPL Tokens](#spl-tokens-espsol_tokenh)
 5. [Examples](#examples)
    - [Query Network Information](#query-network-information)
    - [Generate and Store Keypair](#generate-and-store-keypair)
+   - [Create Wallet with Seed Phrase](#create-wallet-with-seed-phrase)
    - [Transfer SOL](#transfer-sol)
    - [Transfer SPL Tokens](#transfer-spl-tokens)
 6. [Configuration](#configuration)
@@ -45,6 +47,7 @@ ESPSOL is a pure C implementation of a Solana SDK designed specifically for ESP3
 - **Pure C implementation** - No C++ dependencies, minimal memory footprint
 - **Native ESP-IDF APIs** - Uses `esp_http_client`, `cJSON`, `nvs_flash`
 - **Ed25519 cryptography** - Via libsodium for keypair generation and signing
+- **BIP39 mnemonic support** - 12/24-word seed phrases for wallet backup and recovery
 - **Full RPC support** - JSON-RPC 2.0 client with retry and backoff
 - **Transaction building** - System Program and SPL Token instructions
 - **Secure storage** - NVS integration for persistent keypair storage
@@ -165,6 +168,7 @@ if (err != ESP_OK) {
 | `ESP_ERR_ESPSOL_TIMEOUT` | 0x50011 | Operation timeout |
 | `ESP_ERR_ESPSOL_NOT_INITIALIZED` | 0x50012 | Component not initialized |
 | `ESP_ERR_ESPSOL_RATE_LIMITED` | 0x50013 | Rate limited (HTTP 429) |
+| `ESP_ERR_ESPSOL_INVALID_MNEMONIC` | 0x50014 | Invalid mnemonic phrase |
 
 ### Memory Management
 
@@ -626,6 +630,251 @@ esp_err_t espsol_keypair_exists_in_nvs(
     bool *exists          // Output: true if exists
 );
 ```
+
+---
+
+### Mnemonic/Seed Phrase (`espsol_mnemonic.h`)
+
+BIP39 mnemonic seed phrase support for wallet backup and recovery. Mnemonics provide a human-readable way to backup and restore wallets across devices and applications.
+
+> ⚠️ **Security Warning**: Mnemonic phrases give full access to your wallet. Treat them like private keys - never share, store securely, and clear from memory when done.
+
+#### BIP39 Overview
+
+- **12-word mnemonic**: 128-bit entropy (standard security)
+- **24-word mnemonic**: 256-bit entropy (high security)
+- **Passphrase**: Optional extra word for additional security
+- **Compatibility**: Works with Phantom, Solflare, and other Solana wallets
+
+#### Constants
+
+```c
+#define ESPSOL_MNEMONIC_12_WORDS      12    // 12-word mnemonic
+#define ESPSOL_MNEMONIC_24_WORDS      24    // 24-word mnemonic
+#define ESPSOL_MNEMONIC_12_MAX_LEN    128   // Max buffer for 12 words
+#define ESPSOL_MNEMONIC_24_MAX_LEN    256   // Max buffer for 24 words
+#define ESPSOL_ENTROPY_12_SIZE        16    // 128-bit entropy
+#define ESPSOL_ENTROPY_24_SIZE        32    // 256-bit entropy
+#define ESPSOL_MNEMONIC_SEED_SIZE     64    // BIP39 seed size
+#define ESPSOL_BIP39_WORDLIST_SIZE    2048  // BIP39 wordlist
+```
+
+#### espsol_mnemonic_generate_12
+
+Generate a random 12-word mnemonic phrase.
+
+```c
+esp_err_t espsol_mnemonic_generate_12(
+    char *mnemonic,       // Output buffer (min 128 bytes)
+    size_t mnemonic_len   // Buffer size
+);
+```
+
+**Example:**
+```c
+char mnemonic[ESPSOL_MNEMONIC_12_MAX_LEN];
+ESP_ERROR_CHECK(espsol_mnemonic_generate_12(mnemonic, sizeof(mnemonic)));
+printf("Seed phrase: %s\n", mnemonic);
+```
+
+#### espsol_mnemonic_generate_24
+
+Generate a random 24-word mnemonic phrase (recommended for high security).
+
+```c
+esp_err_t espsol_mnemonic_generate_24(
+    char *mnemonic,       // Output buffer (min 256 bytes)
+    size_t mnemonic_len   // Buffer size
+);
+```
+
+#### espsol_mnemonic_from_entropy
+
+Generate mnemonic from provided entropy (for deterministic generation).
+
+```c
+esp_err_t espsol_mnemonic_from_entropy(
+    const uint8_t *entropy,   // Entropy bytes (16 or 32)
+    size_t entropy_len,       // 16 for 12-word, 32 for 24-word
+    char *mnemonic,           // Output buffer
+    size_t mnemonic_len       // Buffer size
+);
+```
+
+**Example:**
+```c
+// Generate deterministic mnemonic from known entropy
+uint8_t entropy[16] = {0x00, 0x00, 0x00, /* ... all zeros ... */};
+char mnemonic[ESPSOL_MNEMONIC_12_MAX_LEN];
+espsol_mnemonic_from_entropy(entropy, 16, mnemonic, sizeof(mnemonic));
+// Result: "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
+```
+
+#### espsol_mnemonic_validate
+
+Validate a mnemonic phrase (checks words, count, and checksum).
+
+```c
+esp_err_t espsol_mnemonic_validate(const char *mnemonic);
+```
+
+**Returns:**
+- `ESP_OK` if mnemonic is valid
+- `ESP_ERR_ESPSOL_INVALID_MNEMONIC` if invalid words, wrong count, or bad checksum
+
+**Example:**
+```c
+if (espsol_mnemonic_validate(user_input) == ESP_OK) {
+    printf("Valid mnemonic!\n");
+} else {
+    printf("Invalid mnemonic - check your words\n");
+}
+```
+
+#### espsol_mnemonic_word_valid
+
+Check if a single word is in the BIP39 wordlist.
+
+```c
+bool espsol_mnemonic_word_valid(
+    const char *word,     // Word to check
+    int *index            // Optional: output word index (0-2047)
+);
+```
+
+**Example:**
+```c
+int idx;
+if (espsol_mnemonic_word_valid("abandon", &idx)) {
+    printf("'abandon' is at index %d\n", idx);  // Output: 0
+}
+```
+
+#### espsol_mnemonic_word_count
+
+Get the number of words in a mnemonic string.
+
+```c
+int espsol_mnemonic_word_count(const char *mnemonic);
+```
+
+**Returns:** Word count (12 or 24 for valid mnemonics), or 0 on error
+
+#### espsol_mnemonic_to_seed
+
+Convert mnemonic to 64-byte BIP39 seed using PBKDF2-SHA512.
+
+```c
+esp_err_t espsol_mnemonic_to_seed(
+    const char *mnemonic,                   // Mnemonic phrase
+    const char *passphrase,                 // Optional passphrase (NULL for none)
+    uint8_t seed[ESPSOL_MNEMONIC_SEED_SIZE] // Output 64-byte seed
+);
+```
+
+> **Note**: Different passphrases produce different seeds (and wallets) from the same mnemonic.
+
+#### espsol_keypair_from_mnemonic
+
+Derive a Solana keypair from mnemonic phrase.
+
+```c
+esp_err_t espsol_keypair_from_mnemonic(
+    const char *mnemonic,         // Mnemonic phrase (12 or 24 words)
+    const char *passphrase,       // Optional BIP39 passphrase (NULL for none)
+    espsol_keypair_t *keypair     // Output keypair
+);
+```
+
+**Example: Wallet Recovery**
+```c
+// User enters their saved seed phrase
+const char *saved_mnemonic = "abandon ability able about above absent absorb abstract absurd abuse access accident";
+
+espsol_keypair_t wallet;
+ESP_ERROR_CHECK(espsol_keypair_from_mnemonic(saved_mnemonic, NULL, &wallet));
+
+char address[ESPSOL_ADDRESS_MAX_LEN];
+espsol_keypair_get_address(&wallet, address, sizeof(address));
+printf("Recovered wallet: %s\n", address);
+```
+
+#### espsol_keypair_generate_with_mnemonic
+
+Generate a new keypair with mnemonic in one call (convenience function).
+
+```c
+esp_err_t espsol_keypair_generate_with_mnemonic(
+    int word_count,           // 12 or 24
+    char *mnemonic,           // Output mnemonic buffer
+    size_t mnemonic_len,      // Buffer size
+    espsol_keypair_t *keypair // Output keypair
+);
+```
+
+**Example: Create New Wallet with Backup**
+```c
+char mnemonic[ESPSOL_MNEMONIC_12_MAX_LEN];
+espsol_keypair_t wallet;
+
+ESP_ERROR_CHECK(espsol_keypair_generate_with_mnemonic(
+    12, mnemonic, sizeof(mnemonic), &wallet
+));
+
+// Show user their seed phrase for backup
+printf("\n╔════════════════════════════════════╗\n");
+printf("║ ⚠️  BACKUP YOUR SEED PHRASE ⚠️      ║\n");
+printf("╠════════════════════════════════════╣\n");
+printf("║ %s\n", mnemonic);
+printf("╚════════════════════════════════════╝\n");
+
+char address[ESPSOL_ADDRESS_MAX_LEN];
+espsol_keypair_get_address(&wallet, address, sizeof(address));
+printf("Wallet: %s\n", address);
+
+// Clear mnemonic after user confirms backup
+espsol_mnemonic_clear(mnemonic, sizeof(mnemonic));
+```
+
+#### espsol_mnemonic_get_word
+
+Get a word from the BIP39 wordlist by index.
+
+```c
+const char *espsol_mnemonic_get_word(int index);  // 0-2047
+```
+
+**Returns:** Word string, or NULL if index out of range
+
+#### espsol_mnemonic_print
+
+Print mnemonic with numbered words for easy backup.
+
+```c
+void espsol_mnemonic_print(
+    const char *mnemonic,  // Mnemonic to print
+    const char *label      // Optional label (e.g., "BACKUP")
+);
+```
+
+**Output:**
+```
+=== BACKUP ===
+ 1. abandon
+ 2. ability
+ 3. able
+...
+```
+
+#### espsol_mnemonic_clear
+
+Securely zero out mnemonic from memory.
+
+```c
+void espsol_mnemonic_clear(char *mnemonic, size_t len);
+```
+
+**Always call this after the user has backed up their mnemonic.**
 
 ---
 
@@ -1287,6 +1536,95 @@ void wallet_demo(void) {
     
     // Clear sensitive data when done
     espsol_keypair_clear(&keypair);
+}
+```
+
+### Create Wallet with Seed Phrase
+
+```c
+#include "espsol.h"
+
+/**
+ * Create a new wallet with seed phrase backup
+ */
+void create_wallet_with_mnemonic(void) {
+    char mnemonic[ESPSOL_MNEMONIC_12_MAX_LEN];
+    espsol_keypair_t wallet;
+    
+    // Generate new wallet with 12-word seed phrase
+    ESP_ERROR_CHECK(espsol_keypair_generate_with_mnemonic(
+        12, mnemonic, sizeof(mnemonic), &wallet
+    ));
+    
+    // Display seed phrase for user to backup
+    printf("\n");
+    printf("╔══════════════════════════════════════════════════╗\n");
+    printf("║         ⚠️  BACKUP YOUR SEED PHRASE ⚠️            ║\n");
+    printf("║  Write these words down and store them safely!   ║\n");
+    printf("╠══════════════════════════════════════════════════╣\n");
+    espsol_mnemonic_print(mnemonic, NULL);
+    printf("╚══════════════════════════════════════════════════╝\n");
+    
+    // Show wallet address
+    char address[ESPSOL_ADDRESS_MAX_LEN];
+    espsol_keypair_get_address(&wallet, address, sizeof(address));
+    ESP_LOGI(TAG, "Wallet address: %s", address);
+    
+    // Clear mnemonic from memory after user confirms backup
+    espsol_mnemonic_clear(mnemonic, sizeof(mnemonic));
+    
+    // Optionally save keypair to NVS for future use
+    espsol_keypair_save_to_nvs(&wallet, "main_wallet");
+    espsol_keypair_clear(&wallet);
+}
+
+/**
+ * Recover wallet from existing seed phrase
+ */
+void recover_wallet_from_mnemonic(const char *user_mnemonic) {
+    // Validate the mnemonic first
+    esp_err_t err = espsol_mnemonic_validate(user_mnemonic);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "Invalid seed phrase!");
+        return;
+    }
+    
+    // Recover the keypair
+    espsol_keypair_t wallet;
+    ESP_ERROR_CHECK(espsol_keypair_from_mnemonic(user_mnemonic, NULL, &wallet));
+    
+    char address[ESPSOL_ADDRESS_MAX_LEN];
+    espsol_keypair_get_address(&wallet, address, sizeof(address));
+    ESP_LOGI(TAG, "Recovered wallet: %s", address);
+    
+    // Save to NVS
+    espsol_keypair_save_to_nvs(&wallet, "main_wallet");
+    espsol_keypair_clear(&wallet);
+}
+
+/**
+ * Use passphrase for extra security (creates different wallet)
+ */
+void wallet_with_passphrase(void) {
+    const char *mnemonic = "abandon ability able about above absent absorb abstract absurd abuse access accident";
+    
+    // Without passphrase
+    espsol_keypair_t wallet1;
+    espsol_keypair_from_mnemonic(mnemonic, NULL, &wallet1);
+    
+    // With passphrase - produces DIFFERENT wallet
+    espsol_keypair_t wallet2;
+    espsol_keypair_from_mnemonic(mnemonic, "my_secret_passphrase", &wallet2);
+    
+    char addr1[ESPSOL_ADDRESS_MAX_LEN], addr2[ESPSOL_ADDRESS_MAX_LEN];
+    espsol_keypair_get_address(&wallet1, addr1, sizeof(addr1));
+    espsol_keypair_get_address(&wallet2, addr2, sizeof(addr2));
+    
+    ESP_LOGI(TAG, "Without passphrase: %s", addr1);
+    ESP_LOGI(TAG, "With passphrase:    %s", addr2);  // Different address!
+    
+    espsol_keypair_clear(&wallet1);
+    espsol_keypair_clear(&wallet2);
 }
 ```
 
