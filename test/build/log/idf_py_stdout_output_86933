@@ -1,0 +1,141 @@
+Command: ninja all
+[1/99] Linking C static library esp-idf/unity/libunity.a
+[2/99] Building C object esp-idf/app_trace/CMakeFiles/__idf_app_trace.dir/host_file_io.c.obj
+[3/99] Building C object esp-idf/esp_driver_cam/CMakeFiles/__idf_esp_driver_cam.dir/dvp_share_ctrl.c.obj
+[4/99] Building C object esp-idf/cmock/CMakeFiles/__idf_cmock.dir/CMock/src/cmock.c.obj
+[5/99] Building C object esp-idf/esp_hid/CMakeFiles/__idf_esp_hid.dir/src/esp_hidd.c.obj
+[6/99] Building C object esp-idf/app_trace/CMakeFiles/__idf_app_trace.dir/port/port_uart.c.obj
+[7/99] Linking C static library esp-idf/esp_https_server/libesp_https_server.a
+[8/99] Building C object esp-idf/esp_driver_cam/CMakeFiles/__idf_esp_driver_cam.dir/esp_cam_ctlr.c.obj
+[9/99] Building C object esp-idf/esp_lcd/CMakeFiles/__idf_esp_lcd.dir/src/esp_lcd_common.c.obj
+[10/99] Building C object esp-idf/esp_eth/CMakeFiles/__idf_esp_eth.dir/src/esp_eth_netif_glue.c.obj
+[11/99] Building C object esp-idf/esp_lcd/CMakeFiles/__idf_esp_lcd.dir/src/esp_lcd_panel_io.c.obj
+[12/99] Linking C static library esp-idf/espressif__libsodium/libespressif__libsodium.a
+[13/99] Building C object esp-idf/esp_hid/CMakeFiles/__idf_esp_hid.dir/src/esp_hid_common.c.obj
+[14/99] Building C object esp-idf/esp_lcd/CMakeFiles/__idf_esp_lcd.dir/src/esp_lcd_panel_ops.c.obj
+[15/99] Building C object esp-idf/espsol/CMakeFiles/__idf_espsol.dir/src/espsol_mnemonic.c.obj
+[16/99] Building C object esp-idf/esp_lcd/CMakeFiles/__idf_esp_lcd.dir/src/esp_lcd_panel_ssd1306.c.obj
+[17/99] Building C object esp-idf/esp_hid/CMakeFiles/__idf_esp_hid.dir/src/esp_hidh.c.obj
+[18/99] Building C object esp-idf/esp_lcd/CMakeFiles/__idf_esp_lcd.dir/src/esp_lcd_panel_nt35510.c.obj
+[19/99] Linking C static library esp-idf/protocomm/libprotocomm.a
+[20/99] Building C object esp-idf/espcoredump/CMakeFiles/__idf_espcoredump.dir/src/core_dump_init.c.obj
+[21/99] Building C object esp-idf/esp_lcd/CMakeFiles/__idf_esp_lcd.dir/i2c/esp_lcd_panel_io_i2c_v2.c.obj
+[22/99] Building C object esp-idf/esp_lcd/CMakeFiles/__idf_esp_lcd.dir/i2c/esp_lcd_panel_io_i2c_v1.c.obj
+[23/99] Building C object esp-idf/espcoredump/CMakeFiles/__idf_espcoredump.dir/src/core_dump_common.c.obj
+[24/99] Building C object esp-idf/esp_lcd/CMakeFiles/__idf_esp_lcd.dir/src/esp_lcd_panel_st7789.c.obj
+[25/99] Building C object esp-idf/esp_local_ctrl/CMakeFiles/__idf_esp_local_ctrl.dir/src/esp_local_ctrl_transport_httpd.c.obj
+[26/99] Building C object esp-idf/esp_local_ctrl/CMakeFiles/__idf_esp_local_ctrl.dir/src/esp_local_ctrl_handler.c.obj
+[27/99] Building C object esp-idf/espcoredump/CMakeFiles/__idf_espcoredump.dir/src/core_dump_sha.c.obj
+[28/99] Building C object esp-idf/espcoredump/CMakeFiles/__idf_espcoredump.dir/src/core_dump_crc.c.obj
+[29/99] Building C object esp-idf/esp_eth/CMakeFiles/__idf_esp_eth.dir/src/esp_eth.c.obj
+[30/99] Building C object esp-idf/espcoredump/CMakeFiles/__idf_espcoredump.dir/src/core_dump_uart.c.obj
+[31/99] Building C object esp-idf/espcoredump/CMakeFiles/__idf_espcoredump.dir/src/core_dump_flash.c.obj
+[32/99] Building C object esp-idf/espcoredump/CMakeFiles/__idf_espcoredump.dir/src/core_dump_elf.c.obj
+[33/99] Building C object esp-idf/esp_lcd/CMakeFiles/__idf_esp_lcd.dir/spi/esp_lcd_panel_io_spi.c.obj
+[34/99] Building C object esp-idf/esp_local_ctrl/CMakeFiles/__idf_esp_local_ctrl.dir/src/esp_local_ctrl.c.obj
+[35/99] Building C object esp-idf/esp_local_ctrl/CMakeFiles/__idf_esp_local_ctrl.dir/proto-c/esp_local_ctrl.pb-c.c.obj
+[36/99] Building C object esp-idf/espcoredump/CMakeFiles/__idf_espcoredump.dir/src/core_dump_binary.c.obj
+[37/99] Building C object esp-idf/esp_eth/CMakeFiles/__idf_esp_eth.dir/src/phy/esp_eth_phy_802_3.c.obj
+[38/99] Linking C static library esp-idf/wear_levelling/libwear_levelling.a
+[39/99] Building C object esp-idf/espcoredump/CMakeFiles/__idf_espcoredump.dir/src/port/riscv/core_dump_port.c.obj
+[40/99] Building C object esp-idf/fatfs/CMakeFiles/__idf_fatfs.dir/src/ffunicode.c.obj
+[41/99] Building C object esp-idf/fatfs/CMakeFiles/__idf_fatfs.dir/port/freertos/ffsystem.c.obj
+[42/99] Building C object esp-idf/fatfs/CMakeFiles/__idf_fatfs.dir/diskio/diskio.c.obj
+[43/99] Building C object esp-idf/fatfs/CMakeFiles/__idf_fatfs.dir/diskio/diskio_wl.c.obj
+[44/99] Building C object esp-idf/fatfs/CMakeFiles/__idf_fatfs.dir/diskio/diskio_rawflash.c.obj
+[45/99] Building C object esp-idf/fatfs/CMakeFiles/__idf_fatfs.dir/diskio/diskio_sdmmc.c.obj
+[46/99] Building C object esp-idf/mqtt/CMakeFiles/__idf_mqtt.dir/esp-mqtt/lib/platform_esp32_idf.c.obj
+[47/99] Building C object esp-idf/nvs_sec_provider/CMakeFiles/__idf_nvs_sec_provider.dir/nvs_sec_provider.c.obj
+[48/99] Building C object esp-idf/rt/CMakeFiles/__idf_rt.dir/FreeRTOS_POSIX_utils.c.obj
+[49/99] Building C object esp-idf/spiffs/CMakeFiles/__idf_spiffs.dir/spiffs_api.c.obj
+[50/99] Building C object esp-idf/mqtt/CMakeFiles/__idf_mqtt.dir/esp-mqtt/lib/mqtt_outbox.c.obj
+[51/99] Building C object esp-idf/fatfs/CMakeFiles/__idf_fatfs.dir/vfs/vfs_fat_sdmmc.c.obj
+[52/99] Building C object esp-idf/spiffs/CMakeFiles/__idf_spiffs.dir/spiffs/src/spiffs_cache.c.obj
+[53/99] Building C object esp-idf/fatfs/CMakeFiles/__idf_fatfs.dir/vfs/vfs_fat_spiflash.c.obj
+[54/99] Building C object esp-idf/rt/CMakeFiles/__idf_rt.dir/FreeRTOS_POSIX_mqueue.c.obj
+[55/99] Building C object esp-idf/fatfs/CMakeFiles/__idf_fatfs.dir/vfs/vfs_fat.c.obj
+[56/99] Building C object esp-idf/wifi_provisioning/CMakeFiles/__idf_wifi_provisioning.dir/src/wifi_ctrl.c.obj
+[57/99] Building C object esp-idf/wifi_provisioning/CMakeFiles/__idf_wifi_provisioning.dir/src/wifi_config.c.obj
+[58/99] Building C object esp-idf/wifi_provisioning/CMakeFiles/__idf_wifi_provisioning.dir/src/wifi_scan.c.obj
+[59/99] Building C object esp-idf/mqtt/CMakeFiles/__idf_mqtt.dir/esp-mqtt/lib/mqtt_msg.c.obj
+[60/99] Building C object esp-idf/wifi_provisioning/CMakeFiles/__idf_wifi_provisioning.dir/src/scheme_console.c.obj
+[61/99] Building C object esp-idf/spiffs/CMakeFiles/__idf_spiffs.dir/spiffs/src/spiffs_gc.c.obj
+[62/99] Building C object esp-idf/spiffs/CMakeFiles/__idf_spiffs.dir/esp_spiffs.c.obj
+[63/99] Building C object esp-idf/wifi_provisioning/CMakeFiles/__idf_wifi_provisioning.dir/proto-c/wifi_config.pb-c.c.obj
+[64/99] Building C object esp-idf/wifi_provisioning/CMakeFiles/__idf_wifi_provisioning.dir/src/handlers.c.obj
+[65/99] Building C object esp-idf/wifi_provisioning/CMakeFiles/__idf_wifi_provisioning.dir/proto-c/wifi_ctrl.pb-c.c.obj
+[66/99] Building C object esp-idf/wifi_provisioning/CMakeFiles/__idf_wifi_provisioning.dir/proto-c/wifi_constants.pb-c.c.obj
+[67/99] Linking C static library esp-idf/espsol/libespsol.a
+[68/99] Building C object esp-idf/wifi_provisioning/CMakeFiles/__idf_wifi_provisioning.dir/proto-c/wifi_scan.pb-c.c.obj
+[69/99] Linking C static library esp-idf/cmock/libcmock.a
+[70/99] Linking C static library esp-idf/app_trace/libapp_trace.a
+[71/99] Linking C static library esp-idf/esp_driver_cam/libesp_driver_cam.a
+[72/99] Linking C static library esp-idf/esp_eth/libesp_eth.a
+[73/99] Linking C static library esp-idf/esp_hid/libesp_hid.a
+[74/99] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/main.c.obj
+/Users/riz/esp/projects/espsol/test/main/main.c:745:13: warning: 'test_lamport_conversion' defined but not used [-Wunused-function]
+  745 | static void test_lamport_conversion(void)
+      |             ^~~~~~~~~~~~~~~~~~~~~~~
+/Users/riz/esp/projects/espsol/test/main/main.c:682:13: warning: 'test_spl_token' defined but not used [-Wunused-function]
+  682 | static void test_spl_token(void)
+      |             ^~~~~~~~~~~~~~
+/Users/riz/esp/projects/espsol/test/main/main.c:601:13: warning: 'test_transaction_building' defined but not used [-Wunused-function]
+  601 | static void test_transaction_building(void)
+      |             ^~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/riz/esp/projects/espsol/test/main/main.c:589:13: warning: 'test_crypto_self_test' defined but not used [-Wunused-function]
+  589 | static void test_crypto_self_test(void)
+      |             ^~~~~~~~~~~~~~~~~~~~~
+/Users/riz/esp/projects/espsol/test/main/main.c:521:13: warning: 'test_crypto_signing' defined but not used [-Wunused-function]
+  521 | static void test_crypto_signing(void)
+      |             ^~~~~~~~~~~~~~~~~~~
+/Users/riz/esp/projects/espsol/test/main/main.c:439:13: warning: 'test_crypto_keypair' defined but not used [-Wunused-function]
+  439 | static void test_crypto_keypair(void)
+      |             ^~~~~~~~~~~~~~~~~~~
+/Users/riz/esp/projects/espsol/test/main/main.c:402:13: warning: 'test_hex' defined but not used [-Wunused-function]
+  402 | static void test_hex(void)
+      |             ^~~~~~~~
+/Users/riz/esp/projects/espsol/test/main/main.c:351:13: warning: 'test_address_utils' defined but not used [-Wunused-function]
+  351 | static void test_address_utils(void)
+      |             ^~~~~~~~~~~~~~~~~~
+/Users/riz/esp/projects/espsol/test/main/main.c:249:13: warning: 'test_base64' defined but not used [-Wunused-function]
+  249 | static void test_base64(void)
+      |             ^~~~~~~~~~~
+/Users/riz/esp/projects/espsol/test/main/main.c:142:13: warning: 'test_base58' defined but not used [-Wunused-function]
+  142 | static void test_base58(void)
+      |             ^~~~~~~~~~~
+/Users/riz/esp/projects/espsol/test/main/main.c:75:13: warning: 'test_core_sdk' defined but not used [-Wunused-function]
+   75 | static void test_core_sdk(void)
+      |             ^~~~~~~~~~~~~
+[75/99] Linking C static library esp-idf/esp_local_ctrl/libesp_local_ctrl.a
+[76/99] Linking C static library esp-idf/esp_lcd/libesp_lcd.a
+[77/99] Linking C static library esp-idf/espcoredump/libespcoredump.a
+[78/99] Linking C static library esp-idf/rt/librt.a
+[79/99] Linking C static library esp-idf/nvs_sec_provider/libnvs_sec_provider.a
+[80/99] Building C object esp-idf/spiffs/CMakeFiles/__idf_spiffs.dir/spiffs/src/spiffs_check.c.obj
+[81/99] Performing build step for 'bootloader'
+[1/1] cd /Users/riz/esp/projects/espsol/test/build/bootloader/esp-idf/esptool_py && /Users/riz/.espressif/python_env/idf5.5_py3.9_env/bin/python /Users/riz/esp/v5.5.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x0 /Users/riz/esp/projects/espsol/test/build/bootloader/bootloader.bin
+Bootloader binary size 0x5210 bytes. 0x2df0 bytes (36%) free.
+[82/99] Building C object esp-idf/spiffs/CMakeFiles/__idf_spiffs.dir/spiffs/src/spiffs_hydrogen.c.obj
+[83/99] No install step for 'bootloader'
+[84/99] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/integration_test.c.obj
+[85/99] Completed 'bootloader'
+[86/99] Linking C static library esp-idf/main/libmain.a
+[87/99] Building C object esp-idf/wifi_provisioning/CMakeFiles/__idf_wifi_provisioning.dir/src/manager.c.obj
+[88/99] Linking C static library esp-idf/wifi_provisioning/libwifi_provisioning.a
+[89/99] Building C object esp-idf/mqtt/CMakeFiles/__idf_mqtt.dir/esp-mqtt/mqtt_client.c.obj
+[90/99] Building C object esp-idf/spiffs/CMakeFiles/__idf_spiffs.dir/spiffs/src/spiffs_nucleus.c.obj
+[91/99] Building C object esp-idf/fatfs/CMakeFiles/__idf_fatfs.dir/src/ff.c.obj
+[92/99] Linking C static library esp-idf/mqtt/libmqtt.a
+[93/99] Linking C static library esp-idf/spiffs/libspiffs.a
+[94/99] Linking C static library esp-idf/fatfs/libfatfs.a
+[95/99] Generating esp-idf/esp_system/ld/sections.ld
+[96/99] Building C object CMakeFiles/espsol_test.elf.dir/project_elf_src_esp32c3.c.obj
+[97/99] Linking CXX executable espsol_test.elf
+[98/99] Generating binary image from built executable
+esptool.py v4.11.dev1
+Creating esp32c3 image...
+Merged 1 ELF section
+Successfully created esp32c3 image.
+Generated /Users/riz/esp/projects/espsol/test/build/espsol_test.bin
+[99/99] cd /Users/riz/esp/projects/espsol/test/build/esp-idf/esptool_py && /Users/riz/.espressif/python_env/idf5.5_py3.9_env/bin/python /Users/riz/esp/v5.5.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 partition --type app /Users/riz/esp/projects/espsol/test/build/partition_table/partition-table.bin /Users/riz/esp/projects/espsol/test/build/espsol_test.bin
+espsol_test.bin binary size 0xd2200 bytes. Smallest app partition is 0x1f0000 bytes. 0x11de00 bytes (58%) free.

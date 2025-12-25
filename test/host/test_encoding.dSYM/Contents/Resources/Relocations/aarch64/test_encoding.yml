@@ -1,0 +1,5 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     '/Users/riz/esp/projects/espsol/test/host/test_encoding'
+relocations:     []
+...

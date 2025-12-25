@@ -1,0 +1,60 @@
+# ESPSOL Test Configuration Defaults
+# These settings are required for cryptographic operations with libsodium
+
+# Increase main task stack size for Ed25519 crypto operations
+# Default is 3584, but libsodium needs more for signature verification
+CONFIG_ESP_MAIN_TASK_STACK_SIZE=16384
+
+# Use custom partition table with larger app partition (2MB for app)
+CONFIG_PARTITION_TABLE_CUSTOM=y
+CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions.csv"
+
+# WiFi settings for integration test
+CONFIG_ESP_WIFI_STATIC_RX_BUFFER_NUM=10
+CONFIG_ESP_WIFI_DYNAMIC_RX_BUFFER_NUM=32
+CONFIG_ESP_WIFI_DYNAMIC_TX_BUFFER_NUM=32
+
+# Enable support for HTTPS
+CONFIG_ESP_TLS_USING_MBEDTLS=y
+
+# Increase HTTP buffer size for Solana RPC responses
+CONFIG_ESP_HTTP_CLIENT_ENABLE_HTTPS=y
+
+# ============================================
+# SIZE OPTIMIZATIONS
+# ============================================
+
+# Compiler optimization for size instead of speed
+CONFIG_COMPILER_OPTIMIZATION_SIZE=y
+
+# Reduce certificate bundle - only include common CAs
+# This saves ~50KB by not including all 130+ root CAs
+CONFIG_MBEDTLS_CERTIFICATE_BUNDLE_DEFAULT_CMN=y
+
+# Disable unused mbedtls features to save ~30KB
+CONFIG_MBEDTLS_TLS_CLIENT_ONLY=y
+CONFIG_MBEDTLS_SSL_KEEP_PEER_CERTIFICATE=n
+CONFIG_MBEDTLS_HARDWARE_AES=y
+CONFIG_MBEDTLS_HARDWARE_SHA=y
+
+# Disable logging in release builds (saves ~10KB)
+# CONFIG_LOG_DEFAULT_LEVEL_NONE=y
+
+# Disable WiFi debug features
+CONFIG_ESP_WIFI_ENABLE_WPA3_SAE=n
+CONFIG_ESP_WIFI_SOFTAP_SUPPORT=n
+
+# Reduce lwIP memory usage
+CONFIG_LWIP_MAX_SOCKETS=4
+CONFIG_LWIP_MAX_ACTIVE_TCP=4
+CONFIG_LWIP_MAX_LISTENING_TCP=4
+CONFIG_LWIP_UDP_RECVMBOX_SIZE=8
+
+# Disable unused features
+CONFIG_VFS_SUPPORT_DIR=n
+CONFIG_VFS_SUPPORT_SELECT=n
+CONFIG_FREERTOS_USE_TRACE_FACILITY=n
+CONFIG_FREERTOS_USE_STATS_FORMATTING_FUNCTIONS=n
+
+# Newlib optimizations
+CONFIG_NEWLIB_NANO_FORMAT=y

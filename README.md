@@ -4,7 +4,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](LICENSE)
 [![Solana](https://img.shields.io/badge/Solana-Devnet%20%7C%20Mainnet-purple.svg)](https://solana.com)
 
-A production-grade ESP-IDF component for Solana blockchain integration on ESP32 devices. Written in pure C with native ESP-IDF APIs.
+ESP-IDF component for Solana blockchain integration on ESP32 devices. Written in pure C with native ESP-IDF APIs.
 
 ## ✨ Features
 
@@ -302,14 +302,3 @@ idf.py build flash monitor
 
 Apache License 2.0 - see [LICENSE](LICENSE) for details.
 
-## 🙏 Acknowledgments
-
-- [Solduino](https://github.com/torrey-xyz/solduino) - Arduino Solana SDK inspiration
-- [libsodium](https://libsodium.org) - Ed25519 cryptography
-- [Solana](https://solana.com) - The blockchain platform
-
-## 📞 Support
-
-- **Issues**: GitHub Issues
-- **Discussions**: GitHub Discussions
-- **Solana Docs**: https://docs.solana.com

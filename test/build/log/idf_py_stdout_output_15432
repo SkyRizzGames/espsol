@@ -1,0 +1,13 @@
+Command: ninja all
+[0/1] Re-running CMake...
+-- Minimal build - OFF
+-- Building ESP-IDF components for target esp32c3
+NOTICE: Processing 2 dependencies:
+NOTICE: [1/2] espressif/libsodium (1.0.20~2)
+NOTICE: [2/2] idf (5.5.1)
+-- Project sdkconfig file /Users/riz/esp/projects/espsol/test/sdkconfig
+Loading defaults file /Users/riz/esp/projects/espsol/test/sdkconfig.defaults...
+/Users/riz/esp/projects/espsol/test/sdkconfig.defaults:60 CONFIG_NEWLIB_NANO_FORMAT was replaced with CONFIG_LIBC_NEWLIB_NANO_FORMAT 
+/var/folders/w7/djbj543n1c3gm9wgw1cpkl8c0000gn/T/kconfgen_tmptom0034u:23 line was updated to # ============================================n
+/var/folders/w7/djbj543n1c3gm9wgw1cpkl8c0000gn/T/kconfgen_tmptom0034u:25 line was updated to # ============================================n
+-- Adding linker script /Users/riz/esp/v5.5.1/esp-idf/components/riscv/ld/rom.api.ld

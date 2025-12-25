@@ -1,0 +1,2 @@
+source /Users/riz/esp/projects/espsol/test/build/gdbinit/symbols
+source /Users/riz/esp/projects/espsol/test/build/gdbinit/connect
