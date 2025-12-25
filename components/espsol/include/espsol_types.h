@@ -267,8 +267,17 @@ extern "C" {
  */
 #define ESP_ERR_ESPSOL_RATE_LIMITED         (ESP_ERR_ESPSOL_BASE + 0x13)
 
+/**
+ * @brief Invalid mnemonic phrase
+ * @details The mnemonic phrase is invalid. Possible causes:
+ *          - Word not in BIP39 wordlist
+ *          - Invalid word count (must be 12 or 24)
+ *          - Invalid checksum
+ */
+#define ESP_ERR_ESPSOL_INVALID_MNEMONIC     (ESP_ERR_ESPSOL_BASE + 0x14)
+
 /** @brief Highest ESPSOL error code (for range checking) */
-#define ESP_ERR_ESPSOL_MAX                  ESP_ERR_ESPSOL_RATE_LIMITED
+#define ESP_ERR_ESPSOL_MAX                  ESP_ERR_ESPSOL_INVALID_MNEMONIC
 
 /**
  * @brief Check if an error code is an ESPSOL-specific error

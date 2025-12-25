@@ -8,6 +8,8 @@ idf_component_register(
         "src/espsol_base58.c"
         "src/espsol_base64.c"
         "src/espsol_crypto.c"
+        "src/espsol_mnemonic.c"
+        "src/espsol_bip39_wordlist.c"
         "src/espsol_rpc.c"
         "src/espsol_tx.c"
         "src/espsol_token.c"
