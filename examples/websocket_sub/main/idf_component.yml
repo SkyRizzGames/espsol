@@ -1,0 +1,4 @@
+dependencies:
+  espressif/libsodium:
+    version: ~1.0.20
+  espressif/esp_websocket_client: '*'

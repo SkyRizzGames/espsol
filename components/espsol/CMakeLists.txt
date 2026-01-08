@@ -13,6 +13,7 @@ idf_component_register(
         "src/espsol_rpc.c"
         "src/espsol_tx.c"
         "src/espsol_token.c"
+        "src/espsol_ws.c"
     INCLUDE_DIRS
         "include"
     PRIV_INCLUDE_DIRS
@@ -24,6 +25,7 @@ idf_component_register(
         esp_http_client
         json
         nvs_flash
+        esp_websocket_client
 )
 
 # Enable strict warnings

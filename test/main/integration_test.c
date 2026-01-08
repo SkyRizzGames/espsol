@@ -34,8 +34,8 @@ static const char *TAG = "espsol_integration";
  * WiFi Configuration - UPDATE THESE!
  * ========================================================================== */
 
-#define WIFI_SSID      "YOUR WIFI NAME"
-#define WIFI_PASSWORD  "YOUR WIFI PASS"
+#define WIFI_SSID      "ZTE_2.4G_Akkd32"
+#define WIFI_PASSWORD  "dtqXCGpa"
 
 /* WiFi connection timeout */
 #define WIFI_CONNECTED_BIT BIT0

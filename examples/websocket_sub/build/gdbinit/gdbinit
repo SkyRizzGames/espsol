@@ -1,0 +1,2 @@
+source /Users/riz/esp/projects/espsol/examples/websocket_sub/build/gdbinit/symbols
+source /Users/riz/esp/projects/espsol/examples/websocket_sub/build/gdbinit/connect

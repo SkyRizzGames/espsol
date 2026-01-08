@@ -1,0 +1,6 @@
+source "/Users/riz/esp/v5.5.1/esp-idf/components/bootloader/Kconfig.projbuild"
+source "/Users/riz/esp/v5.5.1/esp-idf/components/esp_app_format/Kconfig.projbuild"
+source "/Users/riz/esp/v5.5.1/esp-idf/components/esp_rom/Kconfig.projbuild"
+source "/Users/riz/esp/v5.5.1/esp-idf/components/esptool_py/Kconfig.projbuild"
+source "/Users/riz/esp/v5.5.1/esp-idf/components/partition_table/Kconfig.projbuild"
+source "/Users/riz/esp/projects/espsol/examples/websocket_sub/main/Kconfig.projbuild"
