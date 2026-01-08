@@ -112,18 +112,50 @@ menu "ESPSOL Solana Component"
                 Larger buffers use more RAM but support bigger responses.
 
         config ESPSOL_ENABLE_WEBSOCKET
-            bool "Enable WebSocket Support (Future)"
-            default n
+            bool "Enable WebSocket Support"
+            default y
             help
                 Enable WebSocket subscriptions for real-time updates.
                 
-                Features (D2 milestone - not yet implemented):
+                Features (D2 milestone - now implemented):
                 - accountSubscribe: Watch account changes
                 - programSubscribe: Monitor program accounts
                 - signatureSubscribe: Track transaction confirmations
+                - logsSubscribe: Get transaction logs
                 - slotSubscribe: Get slot notifications
                 
-                Requires ~8KB additional RAM for WebSocket client.
+                Requires ~12KB additional RAM for WebSocket client.
+                
+        config ESPSOL_WS_AUTO_RECONNECT
+            bool "WebSocket Auto-Reconnect"
+            default y
+            depends on ESPSOL_ENABLE_WEBSOCKET
+            help
+                Automatically reconnect when WebSocket connection drops.
+                
+                Recommended: Enable for production deployments.
+                Disable for testing or low-power applications.
+                
+        config ESPSOL_WS_RECONNECT_DELAY_MS
+            int "WebSocket Reconnect Delay (ms)"
+            default 5000
+            range 1000 60000
+            depends on ESPSOL_WS_AUTO_RECONNECT
+            help
+                Delay before attempting to reconnect after disconnect.
+                
+                Recommended: 5000ms (5 seconds) to avoid overwhelming the server.
+                
+        config ESPSOL_WS_MAX_SUBSCRIPTIONS
+            int "Maximum WebSocket Subscriptions"
+            default 16
+            range 4 32
+            depends on ESPSOL_ENABLE_WEBSOCKET
+            help
+                Maximum number of concurrent WebSocket subscriptions.
+                
+                Each subscription uses ~64 bytes of RAM.
+                Adjust based on your application needs.
 
         config ESPSOL_RATE_LIMIT_RPS
             int "Rate Limit (requests per second)"

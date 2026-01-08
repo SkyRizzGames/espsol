@@ -75,6 +75,23 @@ static inline int espsol_secure_compare(const void *a, const void *b, size_t len
     return diff == 0 ? 0 : 1;
 }
 
+/**
+ * @brief Convert commitment enum to string
+ */
+static inline const char *espsol_commitment_to_string(espsol_commitment_t commitment)
+{
+    switch (commitment) {
+        case ESPSOL_COMMITMENT_PROCESSED:
+            return "processed";
+        case ESPSOL_COMMITMENT_CONFIRMED:
+            return "confirmed";
+        case ESPSOL_COMMITMENT_FINALIZED:
+            return "finalized";
+        default:
+            return "confirmed";
+    }
+}
+
 #ifdef __cplusplus
 }
 #endif
